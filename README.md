@@ -32,6 +32,7 @@ This image provides a comprehensive development environment for both Node.js and
 - **Git** (Latest version)
 - **Build Tools**: build-essential, gnupg, lsb-release
 - **Network Tools**: curl, wget
+- **Shells**: bash (default), zsh with autosuggestions and syntax highlighting
 - **Editors**: vim (nano available in base)
 - **System Utilities**: Standard Ubuntu packages
 
@@ -119,6 +120,10 @@ docker run --rm coder-x-base poetry --version
 docker run --rm coder-x-base pipenv --version
 docker run --rm coder-x-base black --version
 docker run --rm coder-x-base python3 -c "import flake8; print('flake8:', flake8.__version__)"
+
+# Shell tools
+docker run --rm coder-x-base zsh --version
+docker run --rm coder-x-base bash -c "ls /usr/share/zsh/plugins/"
 ```
 
 ## Image Details
@@ -154,6 +159,7 @@ docker run --rm ghcr.io/5reasons/coder-x-base:latest bash -c "
   echo 'poetry:' && poetry --version
   echo 'pipenv:' && pipenv --version
   echo 'black:' && black --version
+  echo 'zsh:' && zsh --version
 "
 ```
 

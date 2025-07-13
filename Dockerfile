@@ -7,6 +7,7 @@ USER root
 RUN DEBIAN_FRONTEND="noninteractive" apt-get update -y && apt-get dist-upgrade -y && \
     apt-get install -y \
     gnupg \
+    zsh zsh-autosuggestions zsh-syntax-highlighting \
     lsb-release \
     && rm -rf /var/lib/apt/lists/*
 
@@ -46,11 +47,6 @@ RUN DEBIAN_FRONTEND="noninteractive" apt-get update -y && \
 
 # Create symbolic link for python command (optional, python3 is preferred)
 RUN update-alternatives --install /usr/bin/python python /usr/bin/python3 1
-
-# Install pipx for global Python tools (pipx is already installed in base image, just ensure path)
-# RUN python3 -m pip install --user pipx && \
-#     python3 -m pipx ensurepath
-# Note: pipx is already installed and ensurepath is already run in the base image
 
 # Install Python package managers and tools
 RUN python3 -m pip install --break-system-packages pipenv poetry virtualenv
