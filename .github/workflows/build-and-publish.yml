@@ -85,8 +85,8 @@ jobs:
         with:
           package-name: 'coder-x-base'
           package-type: 'container'
-          min-versions-to-keep: 3
-          delete-only-untagged-versions: false
+          min-versions-to-keep: 10
+          delete-only-untagged-versions: true
 
       - name: Generate build summary
         if: github.event_name != 'pull_request'
@@ -96,4 +96,4 @@ jobs:
           echo "- **Tags**: ${{ steps.meta.outputs.tags }}" >> $GITHUB_STEP_SUMMARY
           echo "- **Platforms**: linux/amd64, linux/arm64" >> $GITHUB_STEP_SUMMARY
           echo "- **Trigger**: ${{ github.event_name }}" >> $GITHUB_STEP_SUMMARY
-          echo "- **Cleanup**: Keeping latest 3 versions, older ones deleted" >> $GITHUB_STEP_SUMMARY
+          echo "- **Cleanup**: Keeping 10 tagged versions, untagged versions cleaned up" >> $GITHUB_STEP_SUMMARY
