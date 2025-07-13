@@ -76,6 +76,15 @@ jobs:
           docker run --rm ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest poetry --version
           docker run --rm ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest pipenv --version
 
+      - name: Clean up old container images
+        if: github.event_name != 'pull_request'
+        uses: actions/delete-package-versions@v5
+        with:
+          package-name: 'coder-x-base'
+          package-type: 'container'
+          min-versions-to-keep: 3
+          delete-only-untagged-versions: false
+
       - name: Generate build summary
         if: github.event_name != 'pull_request'
         run: |
@@ -84,3 +93,4 @@ jobs:
           echo "- **Tags**: ${{ steps.meta.outputs.tags }}" >> $GITHUB_STEP_SUMMARY
           echo "- **Platforms**: linux/amd64, linux/arm64" >> $GITHUB_STEP_SUMMARY
           echo "- **Trigger**: ${{ github.event_name }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Cleanup**: Keeping latest 3 versions, older ones deleted" >> $GITHUB_STEP_SUMMARY
