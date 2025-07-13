@@ -14,7 +14,7 @@ on:
 
 env:
   REGISTRY: ghcr.io
-  IMAGE_NAME: ${{ github.repository }}
+  IMAGE_NAME: ${{ github.repository_owner }}/coder-x-base
 
 jobs:
   build-and-publish:
@@ -26,6 +26,10 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+
+      - name: Convert repository name to lowercase
+        id: repo
+        run: echo "name=$(echo '${{ github.repository }}' | tr '[:upper:]' '[:lower:]')" >> $GITHUB_OUTPUT
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
@@ -42,7 +46,7 @@ jobs:
         id: meta
         uses: docker/metadata-action@v5
         with:
-          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+          images: ${{ env.REGISTRY }}/${{ steps.repo.outputs.name }}
           tags: |
             type=ref,event=branch
             type=ref,event=pr
@@ -65,16 +69,16 @@ jobs:
         if: github.event_name != 'pull_request'
         run: |
           # Test Node.js installation
-          docker run --rm ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest node --version
-          docker run --rm ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest npm --version
-          docker run --rm ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest yarn --version
-          docker run --rm ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest pnpm --version
+          docker run --rm ${{ env.REGISTRY }}/${{ steps.repo.outputs.name }}:latest node --version
+          docker run --rm ${{ env.REGISTRY }}/${{ steps.repo.outputs.name }}:latest npm --version
+          docker run --rm ${{ env.REGISTRY }}/${{ steps.repo.outputs.name }}:latest yarn --version
+          docker run --rm ${{ env.REGISTRY }}/${{ steps.repo.outputs.name }}:latest pnpm --version
           
           # Test Python installation
-          docker run --rm ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest python3 --version
-          docker run --rm ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest pip --version
-          docker run --rm ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest poetry --version
-          docker run --rm ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest pipenv --version
+          docker run --rm ${{ env.REGISTRY }}/${{ steps.repo.outputs.name }}:latest python3 --version
+          docker run --rm ${{ env.REGISTRY }}/${{ steps.repo.outputs.name }}:latest pip --version
+          docker run --rm ${{ env.REGISTRY }}/${{ steps.repo.outputs.name }}:latest poetry --version
+          docker run --rm ${{ env.REGISTRY }}/${{ steps.repo.outputs.name }}:latest pipenv --version
 
       - name: Clean up old container images
         if: github.event_name != 'pull_request'
@@ -89,7 +93,7 @@ jobs:
         if: github.event_name != 'pull_request'
         run: |
           echo "## Build Summary" >> $GITHUB_STEP_SUMMARY
-          echo "- **Image**: \`${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}\`" >> $GITHUB_STEP_SUMMARY
+          echo "- **Image**: \`${{ env.REGISTRY }}/${{ steps.repo.outputs.name }}\`" >> $GITHUB_STEP_SUMMARY
           echo "- **Tags**: ${{ steps.meta.outputs.tags }}" >> $GITHUB_STEP_SUMMARY
           echo "- **Platforms**: linux/amd64, linux/arm64" >> $GITHUB_STEP_SUMMARY
           echo "- **Trigger**: ${{ github.event_name }}" >> $GITHUB_STEP_SUMMARY
