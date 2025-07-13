@@ -44,6 +44,8 @@ This image provides a comprehensive development environment for both Node.js and
 docker pull ghcr.io/5reasons/coder-x-base:latest
 ```
 
+> **Note**: If you encounter "manifest unknown" errors, the package may need to be made public in the GitHub Container Registry. The image is automatically built and published by the CI/CD pipeline, but organizational package visibility settings may require manual configuration.
+
 ### Run Interactively
 
 ```bash
@@ -63,6 +65,8 @@ WORKDIR /workspace
 RUN npm install
 RUN pip install -r requirements.txt
 ```
+
+> **Note**: Replace `ghcr.io/5reasons/coder-x-base:latest` with a specific version tag for production use to ensure reproducible builds.
 
 ### Use with Coder
 

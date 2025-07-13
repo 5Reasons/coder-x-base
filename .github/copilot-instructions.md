@@ -8,48 +8,56 @@ This project extends the `codercom/enterprise-base:ubuntu` Docker image to creat
 
 ```
 .
-├── Dockerfile                    # Main Docker image definition
+├── Dockerfile                         # Main Docker image definition
 ├── .github/
-│   └── workflows/
-│       └── build-and-publish.yml # CI/CD workflow for building and publishing
-├── .dockerignore                 # Docker build exclusions
-├── README.md                     # Project documentation
-└── LICENSE                       # Project license
+│   ├── workflows/
+│   │   └── build-and-publish.yml     # CI/CD workflow for building and publishing
+│   └── copilot-instructions.md       # Copilot context and guidelines
+├── .dockerignore                      # Docker build exclusions
+├── README.md                          # Project documentation
+└── LICENSE                            # Project license
 ```
 
 ## Docker Image Details
 
-- **Base Image**: `codercom/enterprise-base:ubuntu`
+- **Base Image**: `codercom/enterprise-base:ubuntu` (Ubuntu 24.04 Noble)
 - **Target Registry**: GitHub Container Registry (ghcr.io)
-- **Image Name**: `ghcr.io/5reasons/coder-x-base`
+- **Image Name**: `ghcr.io/5reasons/coder-x-base` (lowercase enforced)
 - **Visibility**: Public
 - **Purpose**: Development environment for Node.js and Python3
 - **Security**: Regularly update to include security patches and latest versions of tools. Container user: `coder` with UID 1000, GID 1000.
+- **Current Size**: ~1.9GB (optimized for volume-mounted environments)
+- **Platforms**: linux/amd64, linux/arm64
 
 ## Development Tools to Include
 
 ### Node.js Stack
-- Node.js (latest LTS version)
-- npm (comes with Node.js)
-- yarn (alternative package manager)
-- pnpm (fast package manager)
-- TypeScript (global installation)
-- Common development tools (eslint, prettier, etc.)
+- Node.js v22 (Latest LTS)
+- npm 10.9 (comes with Node.js)
+- yarn 1.22 (alternative package manager)
+- pnpm 10.13 (fast package manager)
+- TypeScript 5.8 (global installation)
+- Common development tools (eslint v9.31.0, prettier, nodemon, pm2, ts-node)
 
 ### Python3 Stack
-- Python 3.12+ (latest stable)
-- pip (Python package manager)
-- pipenv (dependency management)
-- poetry (modern dependency management)
-- virtualenv (virtual environment management)
-- uv and uvx (virtual environment management tools)
-- Common development tools (black, flake8, pytest, etc.)
+- Python 3.12 (System Python from Ubuntu Noble)
+- pip 24.0 (Python package manager)
+- pipenv 2025.0 (dependency management)
+- poetry 2.1 (modern dependency management)
+- virtualenv 20.31 (virtual environment management)
+- Common development tools (black 24.2, flake8 7.0 as system packages)
+- Scientific Libraries: lxml, aiohttp, aiozmq (system packages)
+
+### Shell Environment
+- bash (default shell)
+- zsh 5.9 with autosuggestions and syntax highlighting
 
 ### Additional Development Tools
-- Git (latest version)
+- Git (Latest version from PPA)
 - curl and wget
 - vim/nano editors
 - build-essential (for compiling native modules)
+- gnupg, lsb-release
 - Common system utilities
 
 ## Dockerfile Guidelines
@@ -63,7 +71,7 @@ This project extends the `codercom/enterprise-base:ubuntu` Docker image to creat
 
 ## GitHub Actions Workflow
 
-The CI/CD pipeline should:
+The CI/CD pipeline:
 
 1. **Trigger on**:
    - Push to main branch
@@ -76,20 +84,21 @@ The CI/CD pipeline should:
    - Set up Docker Buildx
    - Login to GHCR
    - Build multi-platform images (linux/amd64, linux/arm64)
+   - Convert repository name to lowercase for GHCR compatibility
    - Tag with commit SHA and 'latest'
    - Push to registry
+   - Clean up old untagged packages (safe cleanup with delete-only-untagged-versions policy)
 
 3. **Security**:
    - Use GitHub token for authentication
-   - Scan images for vulnerabilities
-   - Sign images with cosign (optional)
+   - Safe package cleanup (only untagged versions)
+   - Multi-platform builds for broader compatibility
 
 ## Environment Variables
 
-Expected environment variables:
+Environment variables used:
 - `GITHUB_TOKEN`: For GHCR authentication
-- `NODE_VERSION`: Node.js version to install (default: LTS)
-- `PYTHON_VERSION`: Python version to install (default: 3.12)
+- Build-time optimizations for volume-mounted development environments
 
 ## Best Practices
 
@@ -97,7 +106,9 @@ Expected environment variables:
 2. **Versioning**: Use semantic versioning for releases
 3. **Testing**: Include basic smoke tests in the workflow
 4. **Dependencies**: Regularly update base image and dependencies
-5. **Size optimization**: Keep image size reasonable (< 2GB if possible)
+5. **Size optimization**: Image optimized for volume-mounted environments (~1.9GB)
+6. **Registry Compatibility**: Enforce lowercase naming for GHCR
+7. **Safety**: Use safe package cleanup policies (delete-only-untagged-versions)
 
 ## Usage Examples
 
@@ -125,11 +136,17 @@ When working on this project, you'll typically:
    ```bash
    docker run -it --rm coder-x-base node --version
    docker run -it --rm coder-x-base python3 --version
+   docker run -it --rm coder-x-base zsh --version
    ```
 
 3. **Check image size**:
    ```bash
    docker images coder-x-base
+   ```
+
+4. **Multi-platform build (like CI)**:
+   ```bash
+   docker buildx build --platform linux/amd64,linux/arm64 -t coder-x-base .
    ```
 
 ## Maintenance
@@ -154,3 +171,5 @@ Common issues and solutions:
 - **Size issues**: Review installed packages and clean up caches
 - **Permission issues**: Ensure proper user configuration in Dockerfile
 - **Tool conflicts**: Verify version compatibility between tools
+- **Registry naming**: Ensure lowercase repository names for GHCR compatibility
+- **Package cleanup**: Use safe cleanup policies to avoid deleting tagged versions
