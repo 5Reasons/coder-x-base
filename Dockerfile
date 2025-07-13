@@ -6,7 +6,7 @@ USER root
 # Install additional system dependencies (base image already has curl, wget, git, build-essential, etc.)
 RUN DEBIAN_FRONTEND="noninteractive" apt-get update -y && apt-get dist-upgrade -y && \
     apt-get install -y \
-    gnupg \
+    gnupg direnv vim-nox \
     zsh zsh-autosuggestions zsh-syntax-highlighting \
     lsb-release \
     && rm -rf /var/lib/apt/lists/*
